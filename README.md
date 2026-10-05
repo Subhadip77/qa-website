@@ -1,33 +1,75 @@
-# Billing
+QA Website — Next.js + Sanity CMS
+A full-stack marketing/agency website built with Next.js 16 and Sanity v4 as a headless CMS. The site features a dynamic home page, a blog with individual post pages, and an embedded Sanity Studio for content management.
 
-PHP and MariaDB billing application for billing soft. A bill is stored in the database, then viewed or printed from that saved record. No separate local print copy is needed.
+Tech Stack
+Layer	Technology
+Framework	Next.js 16 (App Router)
+CMS	Sanity v4 (embedded Studio at /studio)
+Styling	Tailwind CSS v4
+Rich Text	@portabletext/react
+Images	@sanity/image-url
+Language	JavaScript (ES Modules)
+Features
+Home page with Hero, Portfolio, Services, Testimonials, and Blog sections — all content-driven from Sanity
+Blog listing page (/blog) with Incremental Static Regeneration (ISR, 60s revalidation)
+Individual blog post pages (/blog/[slug]) with full portable-text rendering
+Embedded Sanity Studio at /studio with Vision plugin for GROQ querying
+Dynamic Navbar & Footer — navigation links and logo pulled from siteSettings in Sanity
+Featured content filtering — services, portfolio items, and testimonials support a featured flag
+Sanity Content Schema
+Schema Type	Description
+pageSettings	Home page hero title, subtitle, image, and CTA
+siteSettings	Site title, logo, navigation links, social links, contact info, footer text
+blogPost	Title, slug, excerpt, cover image, portable-text body, category, SEO
+service	Title, slug, short description, icon, image, features, order, featured flag
+portfolio	Title, slug, excerpt, cover image, category, featured flag
+testimonial	Name, company, role, image, message, rating, featured flag
+teamMember	Team member profiles
+Project Structure
+app/
+  page.js                  # Home page (server component)
+  blog/
+    page.js                # Blog listing (ISR)
+    [slug]/page.js         # Individual blog post
+  studio/[[...tool]]/      # Embedded Sanity Studio
+components/
+  Navbar.js
+  Footer.js
+  home/                    # HeroSection, ServicesSection, PortfolioSection,
+  │                        #   TestimonialsSection, BlogSection
+  blog/
+    BlogList.js
+sanity/
+  schemaTypes/             # All Sanity schema definitions
+  lib/
+    client.js              # Sanity client
+    queries.js             # GROQ queries
+    image.js               # Image URL builder
+    live.js                # Live preview helper
+  env.js                   # Env var exports
+  structure.js             # Studio desk structure
+sanity.config.js           # Sanity Studio configuration
+Getting Started
+1. Install dependencies
+npm install
+2. Configure environment variables
+Create a .env.local file in the project root:
 
-## Setup
+NEXT_PUBLIC_SANITY_PROJECT_ID=your_project_id
+NEXT_PUBLIC_SANITY_DATASET=production
+NEXT_PUBLIC_SANITY_API_VERSION=2026-03-26
+3. Run the development server
+npm run dev
+Open http://localhost:3000 to view the website.
+Open http://localhost:3000/studio to access the Sanity Studio.
 
-1. Create/import the database. For a new installation, import [database/schema.sql](database/schema.sql). If you have already imported the SQL dump in the request, run [database/migrate_existing_dump.sql](database/migrate_existing_dump.sql) once instead.
-2. Configure the database credentials with environment variables, or edit [config/database.php](config/database.php):
+Available Scripts
+Command	Description
+npm run dev	Start development server
+npm run build	Build for production
+npm run start	Start production server
+npm run lint	Run ESLint
+Deployment
+Deploy to Vercel in one click — Next.js is optimised for the Vercel platform. Make sure to add the three NEXT_PUBLIC_SANITY_* environment variables in your Vercel project settings before deploying.
 
-	```sh
-	export DB_HOST=127.0.0.1
-	export DB_NAME=nursing_billing
-	export DB_USER=root
-	export DB_PASSWORD='your-password'
-	```
-
-3. Ensure PHP has the `pdo_mysql` extension enabled.
-4. Start PHP's local server from the project root:
-
-	```sh
-	php -S localhost:8000
-	```
-
-5. Open `http://localhost:8000/auth/login.php`. The supplied dump contains the `admin` login record. If its password is unknown, replace its hash with one generated using `password_hash()`.
-
-## Workflow
-
-1. Sign in, select **New Bill**, and complete the patient details.
-2. Add medicine lines and any room, doctor, or other charge lines. Amounts and totals calculate automatically.
-3. Select **Save Bill** to view the saved record, or **Save & Print** to open the formatted printable bill.
-4. Use **History** to reopen and print any previous bill.
-
-`save.php` recalculates line-item totals and payment figures on the server inside a database transaction. The client-side form calculations are only for the operator's preview.
+For Sanity Studio access in production, ensure your production domain is added to the CORS origins in your Sanity project settings.
